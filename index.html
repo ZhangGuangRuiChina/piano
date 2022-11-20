@@ -1,0 +1,380 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Piano</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.16/dist/vue.js"></script>
+</head>
+
+<body>
+    <div id="firstVue">
+        <div class="piano">
+            <div class="piano-key" v-for="(pianoKey,index) in pianoKeyboard" :key="index">
+                <div type="white" @click="playPianoKey(pianoKey.white.name)" class="piano-key__white" :class="currentPlayKey  === pianoKey.white.name ? 'play-active' : ''">
+                    <span class="piano-note">{{pianoKey.white.name}}</span>
+                </div>
+                <div type="black" @click="playPianoKey(pianoKey.black.name)" class="piano-key__black" :class="currentPlayKey  === pianoKey.black.name ? 'play-active' : ''" v-if="pianoKey.black.name">
+                    <span class="piano-note">{{pianoKey.black.name}}</span>
+                </div>
+            </div>
+        </div>
+        <div class="buttonGroup">
+            <button  @click="playPianoSong('littleStar')">小星星</button>
+            <button  @click="playPianoSong('happyBirthday')">生日快乐</button>
+        </div>
+        <audio id="pianoKeyAudio" preload="auto" src='' hidden='true'></audio>
+    </div>
+
+</body>
+<script type="text/javascript">
+    var littleStar = [
+        'C4','C4','G4','G4','A4','A4','G4','',
+
+        'F4','F4','E4','E4','D4','D4','C4','',
+
+        'G4','G4','F4','F4','E4','E4','D4','',
+
+        'G4','G4','F4','F4','E4','E4','D4','',
+
+        'C4','C4','G4','G4','A4','A4','G4','',
+
+        'F4','F4','E4','E4','D4','D4','C4',
+    ];
+    var happyBirthday = [
+        'G4','G4','A4','G4','C5','B4','',
+        // 祝你生日快乐
+        'G4','G4','A4','G4','D5','C5','',
+        // 祝你生日快乐
+        'G4','G4','G5','E5','C5','B4','A4',
+        // 祝你生日快乐
+        'F5','F5','E5','C5','D5','C5','',
+        // 祝你生日快乐
+    ]
+    let timer;
+    var myVue = new Vue({
+        el: "#firstVue",
+        data: {
+            currentPlayKey:'',
+            keyObject: {
+                A2: { url: "./piano/a54.mp3", isPlay: false },
+                A3: { url: "./piano/a69.mp3", isPlay: false },
+                A4: { url: "./piano/a80.mp3", isPlay: false },
+                A5: { url: "./piano/a74.mp3", isPlay: false },
+                A6: { url: "./piano/a66.mp3", isPlay: false },
+                'A#3': { url: "./piano/b69.mp3", isPlay: false },
+                'A#4': { url: "./piano/b80.mp3", isPlay: false },
+                'A#5': { url: "./piano/b74.mp3", isPlay: false },
+                'A#6': { url: "./piano/b66.mp3", isPlay: false },
+                B2: { url: "./piano/a55.mp3", isPlay: false },
+                B3: { url: "./piano/a82.mp3", isPlay: false },
+                B4: { url: "./piano/a65.mp3", isPlay: false },
+                B5: { url: "./piano/a75.mp3", isPlay: false },
+                B6: { url: "./piano/a78.mp3", isPlay: false },
+                C2: { url: "./piano/a49.mp3", isPlay: false },
+                C3: { url: "./piano/a56.mp3", isPlay: false },
+                C4: { url: "./piano/a84.mp3", isPlay: false },
+                C5: { url: "./piano/a83.mp3", isPlay: false },
+                C6: { url: "./piano/a76.mp3", isPlay: false },
+                C7: { url: "./piano/a77.mp3", isPlay: false },
+                'C#2': { url: "./piano/b49.mp3", isPlay: false },
+                'C#3': { url: "./piano/b56.mp3", isPlay: false },
+                'C#4': { url: "./piano/b84.mp3", isPlay: false },
+                'C#5': { url: "./piano/b83.mp3", isPlay: false },
+                'C#6': { url: "./piano/b76.mp3", isPlay: false },
+                D2: { url: "./piano/a50.mp3", isPlay: false },
+                D3: { url: "./piano/a57.mp3", isPlay: false },
+                D4: { url: "./piano/a89.mp3", isPlay: false },
+                D5: { url: "./piano/a68.mp3", isPlay: false },
+                D6: { url: "./piano/a90.mp3", isPlay: false },
+                'D#2': { url: "./piano/b50.mp3", isPlay: false },
+                'D#3': { url: "./piano/b57.mp3", isPlay: false },
+                'D#4': { url: "./piano/b89.mp3", isPlay: false },
+                'D#5': { url: "./piano/b68.mp3", isPlay: false },
+                'D#6': { url: "./piano/b90.mp3", isPlay: false },
+                E2: { url: "./piano/a51.mp3", isPlay: false },
+                E3: { url: "./piano/a48.mp3", isPlay: false },
+                E4: { url: "./piano/a85.mp3", isPlay: false },
+                E5: { url: "./piano/a70.mp3", isPlay: false },
+                E6: { url: "./piano/a88.mp3", isPlay: false },
+                F2: { url: "./piano/a52.mp3", isPlay: false },
+                F3: { url: "./piano/a81.mp3", isPlay: false },
+                F4: { url: "./piano/a73.mp3", isPlay: false },
+                F5: { url: "./piano/a71.mp3", isPlay: false },
+                F6: { url: "./piano/a67.mp3", isPlay: false },
+                'F#2': { url: "./piano/b52.mp3", isPlay: false },
+                'F#3': { url: "./piano/b81.mp3", isPlay: false },
+                'F#4': { url: "./piano/b73.mp3", isPlay: false },
+                'F#5': { url: "./piano/b71.mp3", isPlay: false },
+                'F#6': { url: "./piano/b67.mp3", isPlay: false },
+                G2: { url: "./piano/a53.mp3", isPlay: false },
+                G3: { url: "./piano/a87.mp3", isPlay: false },
+                G4: { url: "./piano/a79.mp3", isPlay: false },
+                G5: { url: "./piano/a72.mp3", isPlay: false },
+                G6: { url: "./piano/a86.mp3", isPlay: false },
+                'G#2': { url: "./piano/b53.mp3", isPlay: false },
+                'G#3': { url: "./piano/b87.mp3", isPlay: false },
+                'G#4': { url: "./piano/b79.mp3", isPlay: false },
+                'G#5': { url: "./piano/b72.mp3", isPlay: false },
+                'G#6': { url: "./piano/b86.mp3", isPlay: false }
+            },
+            pianoKeyboard: [{
+                black: { name: "C#2", keyCode: 81 },
+                white: { name: "C2", keyCode: 49 },
+            },
+            {
+                black: { name: "D#2", keyCode: 87 },
+                white: { name: "D2", keyCode: 50 },
+            },
+            {
+                black: { name: null, keyCode: null },
+                white: { name: "E2", keyCode: 51 },
+            },
+            {
+                black: { name: "F#2", keyCode: 69 },
+                white: { name: "F2", keyCode: 52 },
+            },
+            {
+                black: { name: "G#2", keyCode: 82 },
+                white: { name: "G2", keyCode: 53 },
+            },
+            {
+                black: { name: "A#2", keyCode: 84 },
+                white: { name: "A2", keyCode: 54 },
+            },
+            {
+                black: { name: null, keyCode: null },
+                white: { name: "B2", keyCode: 55 },
+            },
+            {
+                black: { name: "C#3", keyCode: 81 },
+                white: { name: "C3", keyCode: 49 },
+            },
+            {
+                black: { name: "D#3", keyCode: 87 },
+                white: { name: "D3", keyCode: 50 },
+            },
+            {
+                black: { name: null, keyCode: null },
+                white: { name: "E3", keyCode: 51 },
+            },
+            {
+                black: { name: "F#3", keyCode: 69 },
+                white: { name: "F3", keyCode: 52 },
+            },
+            {
+                black: { name: "G#3", keyCode: 82 },
+                white: { name: "G3", keyCode: 53 },
+            },
+            {
+                black: { name: "A#3", keyCode: 84 },
+                white: { name: "A3", keyCode: 54 },
+            },
+            {
+                black: { name: null, keyCode: null },
+                white: { name: "B3", keyCode: 55 },
+            },
+            {
+                black: { name: "C#4", keyCode: 81 },
+                white: { name: "C4", keyCode: 49 },
+            },
+            {
+                black: { name: "D#4", keyCode: 87 },
+                white: { name: "D4", keyCode: 50 },
+            },
+            {
+                black: { name: null, keyCode: null },
+                white: { name: "E4", keyCode: 51 },
+            },
+            {
+                black: { name: "F#4", keyCode: 69 },
+                white: { name: "F4", keyCode: 52 },
+            },
+            {
+                black: { name: "G#4", keyCode: 82 },
+                white: { name: "G4", keyCode: 53 },
+            },
+            {
+                black: { name: "A#4", keyCode: 84 },
+                white: { name: "A4", keyCode: 54 },
+            },
+            {
+                black: { name: null, keyCode: null },
+                white: { name: "B4", keyCode: 55 },
+            },
+            {
+                black: { name: "C#5", keyCode: 81 },
+                white: { name: "C5", keyCode: 49 },
+            },
+            {
+                black: { name: "D#5", keyCode: 87 },
+                white: { name: "D5", keyCode: 50 },
+            },
+            {
+                black: { name: null, keyCode: null },
+                white: { name: "E5", keyCode: 51 },
+            },
+            {
+                black: { name: "F#5", keyCode: 69 },
+                white: { name: "F5", keyCode: 52 },
+            },
+            {
+                black: { name: "G#5", keyCode: 82 },
+                white: { name: "G5", keyCode: 53 },
+            },
+            {
+                black: { name: "A#5", keyCode: 84 },
+                white: { name: "A5", keyCode: 54 },
+            },
+            {
+                black: { name: null, keyCode: null },
+                white: { name: "B5", keyCode: 55 },
+            },
+            {
+                black: { name: "C#6", keyCode: 81 },
+                white: { name: "C6", keyCode: 49 },
+            },
+            {
+                black: { name: "D#6", keyCode: 87 },
+                white: { name: "D6", keyCode: 50 },
+            },
+            {
+                black: { name: null, keyCode: null },
+                white: { name: "E6", keyCode: 51 },
+            },
+            {
+                black: { name: "F#6", keyCode: 69 },
+                white: { name: "F6", keyCode: 52 },
+            },
+            {
+                black: { name: "G#6", keyCode: 82 },
+                white: { name: "G6", keyCode: 53 },
+            },
+            {
+                black: { name: "A#6", keyCode: 84 },
+                white: { name: "A6", keyCode: 54 },
+            },
+            {
+                black: { name: null, keyCode: null },
+                white: { name: "B6", keyCode: 55 }
+            }]
+        },
+        methods:{
+            playPianoKey(key){
+                this.currentPlayKey = key;
+
+                // 获取audio元素
+                var pianoKey = document.querySelector('#pianoKeyAudio');
+                pianoKey.src = this.keyObject[key].url;
+
+                // 播放当前audio
+                pianoKey.play();
+            },
+            autoPlaySong(song){
+                clearInterval(timer);
+                var i = 0;
+                timer = setInterval(() => {
+                    var key = song[i];
+                    if(key){
+                        this.playPianoKey(key);
+                    }
+                    i++
+                },500)
+            },
+            playPianoSong(key){
+                switch(key){
+                    case 'littleStar':
+                        this.autoPlaySong(littleStar);
+                        break
+                    case 'happyBirthday':
+                        this.autoPlaySong(happyBirthday);
+                        break
+                }
+            }
+        }
+    })
+</script>
+<style>
+    * {
+      margin: 0;
+      padding: 0;
+    }
+    .buttonGroup{
+        text-align: center;
+        padding: 50px;
+    }
+    .piano {
+      margin: 0 200px;
+      background: linear-gradient(-65deg, #000, #222, #000, #666, #222 75%);
+      border-top: .8rem solid #282828;
+      -webkit-box-shadow: inset 0 -1px 1px hsla(0, 0%, 100%, .5), inset -0.4rem 0.4rem #282828;
+      box-shadow: inset 0 -1px 1px hsla(0, 0%, 100%, .5), inset -0.4rem 0.4rem #282828;
+      display: -webkit-box;
+      display: -ms-flexbox;
+      display: flex;
+      height: 80vh;
+      height: 20vh;
+      -webkit-box-pack: center;
+      -ms-flex-pack: center;
+      justify-content: center;
+      overflow: hidden;
+      padding-bottom: 2%;
+      padding-left: 2.5%;
+      padding-right: 2.5%;
+    }
+  
+    .play-active{
+        background: gray !important;
+    }
+    .piano-key {
+      color: blue;
+      -webkit-box-flex: 1;
+      -ms-flex: 1;
+      flex: 1;
+      margin: 0 .1rem;
+      max-width: 8.8rem;
+      position: relative;
+    }
+  
+    .piano-key__white {
+      display: flex;
+      flex-direction: column-reverse;
+      background: linear-gradient(-30deg, #f8f8f8, #fff);
+      -webkit-box-shadow: inset 0 1px 0 #fff, inset 0 -1px 0 #fff, inset 1px 0 0 #fff, inset -1px 0 0 #fff, 0 4px 3px rgba(0, 0, 0, .7), inset 0 -1px 0 #fff, inset 1px 0 0 #fff, inset -1px -1px 15px rgba(0, 0, 0, .5), -3px 4px 6px rgba(0, 0, 0, .5);
+      box-shadow: inset 0 1px 0 #fff, inset 0 -1px 0 #fff, inset 1px 0 0 #fff, inset -1px 0 0 #fff, 0 4px 3px rgba(0, 0, 0, .7), inset 0 -1px 0 #fff, inset 1px 0 0 #fff, inset -1px -1px 15px rgba(0, 0, 0, .5), -3px 4px 6px rgba(0, 0, 0, .5);
+      height: 100%;
+      position: relative;
+    }
+  
+    .piano-key__black {
+      display: flex;
+      flex-direction: column-reverse;
+      background: linear-gradient(-20deg, #222, #000, #222);
+      -webkit-box-shadow: inset 0 -1px 2px hsla(0, 0%, 100%, .4), 0 2px 3px rgba(0, 0, 0, .4);
+      box-shadow: inset 0 -1px 2px hsla(0, 0%, 100%, .4), 0 2px 3px rgba(0, 0, 0, .4);
+      border-width: .2rem .4rem 1.2rem;
+      border-style: solid;
+      border-color: #666 #222 #111 #555;
+      height: 60%;
+      left: 100%;
+      position: absolute;
+      -webkit-transform: translateX(-50%);
+      transform: translateX(-50%);
+      top: 0;
+      width: 70%;
+      z-index: 1;
+    }
+  
+    .piano-note {
+      color: red;
+      /* 隐藏音符显示 */
+      /* font-size: 8px; */
+      font-size: 0px;
+      text-align: center;
+      height: 20px;
+    }
+  
+  
+  </style>
+</html>
