@@ -267,9 +267,11 @@
                 // 获取audio元素
                 var pianoKey = document.querySelector('#pianoKeyAudio');
                 pianoKey.src = this.keyObject[key].url;
-
+                
                 // 播放当前audio
-                pianoKey.play();
+                this.$nextTick(() => {
+                    pianoKey.play();
+                });
             },
             autoPlaySong(song){
                 clearInterval(timer);
